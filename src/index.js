@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import TagsInput from "./TagsInput";
+import TagsOutput from './TagsOutput'
 
 function InputFieldWithChip() {
-  function handleSelecetedTags(items) {
-    console.log(items);
+  const [tags, setTags] = useState([])
+
+  function handleSelectedTags(items) {
+    console.log(items)
+    setTags([...items])
   }
+
   return (
     <div className="App">
       <TagsInput
-        selectedTags={handleSelecetedTags}
+        selectedTags={handleSelectedTags}
         fullWidth
         variant="outlined"
         id="tags"
@@ -17,6 +22,7 @@ function InputFieldWithChip() {
         placeholder="add Tags"
         label="tags"
       />
+      <TagsOutput tags={tags}/>
     </div>
   );
 }
