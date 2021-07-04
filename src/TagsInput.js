@@ -30,59 +30,64 @@ export default function TagsInput({ ...props }) {
     }, [selectedItem]);
 
     function handleKeyDown(event) {
-        if (event.key === "Enter") {
-            const newSelectedItem = [...selectedItem];
-            const duplicatedValues = newSelectedItem.indexOf(
-                event.target.value.trim()
-            );
-
-            if (duplicatedValues !== -1) {
-                setInputValue("");
-                return;
-            }
-
-            if (!event.target.value.replace(/\s/g, "").length) return;
-
-            if(event.target.value.trim().includes(';')) {
-                const entries = event.target.value.trim().split(';')
-                let invalidCount = 0
-                
-                entries.forEach(e => {
-                    if(e?.length > 0) EmailValidator.validate(e) ? newSelectedItem.push(e) : invalidCount++
-                })
-
-                setSelectedItem(newSelectedItem)
-                setInputError(invalidCount > 0 ? `Total de e-mails inválidos: ${invalidCount}` : '')
-                setInputValue("")
-            } else {
-                if (EmailValidator.validate(event.target.value.trim())) {
-                    newSelectedItem.push(event.target.value.trim());
-                    setSelectedItem(newSelectedItem);
-                    setInputError('')
-                    setInputValue("")
-                } else {
-                    setInputError("E-mail inválido.")
-                }
-            }
-        }
-
-        if (
-            selectedItem.length &&
-            !inputValue.length &&
-            event.key === "Backspace"
-        ) {
-            setSelectedItem(selectedItem.slice(0, selectedItem.length - 1));
+        switch(event.key) {
+            case 'Backspace':
+                if(selectedItem?.length && !inputValue?.length) deleteLastTag()
+                break
+            case 'Enter':
+                if(event.target.value.length) createTagsFromInput(event)
+                break
+            default:
+                return
         }
     }
 
-    // function handleChange(item) {
-    //   let newSelectedItem = [...selectedItem];
-    //   if (newSelectedItem.indexOf(item) === -1) {
-    //     newSelectedItem = [...newSelectedItem, item];
-    //   }
-    //   setInputValue("");
-    //   setSelectedItem(newSelectedItem);
-    // }
+    function createTagsFromInput(event) {
+        const newSelectedItem = [...selectedItem];
+        const duplicatedValues = newSelectedItem.indexOf(
+            event.target.value.trim()
+        );
+
+        if (duplicatedValues !== -1) {
+            setInputValue("");
+            return;
+        }
+
+        if (!event.target.value.replace(/\s/g, "").length) return;
+
+        if(event.target.value.trim().includes(';')) {
+            createMultipleTags(event)
+        } else {
+            if (EmailValidator.validate(event.target.value.trim())) {
+                newSelectedItem.push(event.target.value.trim());
+                setSelectedItem(newSelectedItem);
+                setInputError('')
+                setInputValue("")
+            } else {
+                setInputError("E-mail inválido.")
+            }
+        }
+    }
+
+    function createMultipleTags(event) {
+        const newSelectedItem = [...selectedItem]
+        const entries = event.target.value.trim().split(';')
+        let invalidCount = 0
+        
+        entries.forEach(e => {
+            if(e?.length > 0) EmailValidator.validate(e) ? newSelectedItem.push(e) : invalidCount++
+        })
+
+        setSelectedItem(newSelectedItem)
+        setInputError(invalidCount > 0 ? `Total de e-mails inválidos: ${invalidCount}` : '')
+        setInputValue("")
+    }
+
+    function deleteLastTag() {
+        const newSelectedItem = [...selectedItem]
+        newSelectedItem.pop()
+        setSelectedItem(newSelectedItem)
+    }
 
     const handleDelete = (item) => () => {
         const newSelectedItem = [...selectedItem];
