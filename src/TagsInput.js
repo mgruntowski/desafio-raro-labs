@@ -27,12 +27,10 @@ export default function TagsInput({ ...props }) {
 
     useEffect(() => {
         selectedTags(selectedItem);
-    }, [selectedItem, selectedTags]);
+    }, [selectedItem]);
 
     function handleKeyDown(event) {
-        if (event.key === "Enter" || event.key === "Tab") {
-            event.preventDefault()
-
+        if (event.key === "Enter") {
             const newSelectedItem = [...selectedItem];
             const duplicatedValues = newSelectedItem.indexOf(
                 event.target.value.trim()
@@ -50,7 +48,7 @@ export default function TagsInput({ ...props }) {
                 let invalidCount = 0
                 
                 entries.forEach(e => {
-                    EmailValidator.validate(e) ? newSelectedItem.push(e) : invalidCount++
+                    if(e?.length > 0) EmailValidator.validate(e) ? newSelectedItem.push(e) : invalidCount++
                 })
 
                 setSelectedItem(newSelectedItem)
@@ -94,6 +92,7 @@ export default function TagsInput({ ...props }) {
 
     function handleInputChange(event) {
         setInputValue(event.target.value);
+        setInputError('')
     }
     return (
         <React.Fragment>
@@ -122,7 +121,9 @@ export default function TagsInput({ ...props }) {
                                             onDelete={handleDelete(item)}
                                         />
                                     )),
-                                    onBlur,
+                                    onBlur: (event) => {
+                                        handleKeyDown({ ...event, key: 'Enter' })
+                                    },
                                     onChange: (event) => {
                                         handleInputChange(event);
                                         onChange(event);
